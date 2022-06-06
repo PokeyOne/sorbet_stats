@@ -3,11 +3,15 @@
 //! This is meant to be a command line utility to convert the stats provided by
 //! Sorbet into something more interpretable.
 
+mod raw_metrics;
+mod project;
+
 #[macro_use]
 extern crate pokey_logger;
 
 use clap::Parser;
 use std::path::{Path, PathBuf};
+use crate::raw_metrics::RawMetrics;
 
 #[derive(Parser)]
 #[clap(author, version, about)]
@@ -15,7 +19,9 @@ struct Cli {
     /// The json metrics file created by Sorbet.
     ///
     /// If not provided, the program will start reading from stdin.
-    file: Option<PathBuf>
+    file: Option<PathBuf>,
+    #[clap(long)]
+    csv: bool
 }
 
 fn main() {
@@ -26,7 +32,15 @@ fn main() {
         None => todo!("Read from stdin when no file provided.")
     };
 
-    todo!("Deserialize the JSON format")
+    let content = match RawMetrics::new(&content) {
+        Ok(value) => value,
+        Err(err) => {
+            error!("Invalid stats json: {err}");
+            std::process::exit(1);
+        }
+    };
+
+
 }
 
 /// Load the file from the path given, or show an error message and exit.
