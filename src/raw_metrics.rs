@@ -27,4 +27,17 @@ impl RawMetrics {
     pub fn new(raw: &str) -> Result<RawMetrics, serde_json::Error> {
         serde_json::from_str(raw)
     }
+
+    pub fn get_metric(&self, name: &str) -> Option<u32> {
+        self.metrics.iter().find(|m| m.name == name)?.value
+    }
+}
+
+impl Metric {
+    pub fn name_components(&self) -> Vec<String> {
+        self.name
+            .split(".")
+            .map(|v| v.to_string())
+            .collect()
+    }
 }
